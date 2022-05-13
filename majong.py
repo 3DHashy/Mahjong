@@ -51,7 +51,7 @@ def comecarJogo():
 
 comecarJogo()
 
-#ef getKey(key):
+#def getKey(key):
     #print(key)
 
 
