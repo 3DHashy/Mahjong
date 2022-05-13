@@ -1,6 +1,7 @@
 # Mahjong
-> *Trabalho de Fundamentos da Programação, professor Joabe Jesus*
-> *Escola Politécnica de Pernambuco*
+ *Trabalho de Fundamentos da Programação, professor Joabe Jesus*
+
+ *Escola Politécnica de Pernambuco , 2022*
 
 **Alunos:**
 1. *Leonardo Oliveira de Albuquerque Fell*
