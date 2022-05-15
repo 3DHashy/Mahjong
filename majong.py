@@ -1,3 +1,4 @@
+#IMPORTAR TODAS AS BIBLIOTECAS
 from turtle import back
 import console
 import time
@@ -9,7 +10,7 @@ console.clear()
 
 
 
-def comecarJogo():
+def comecarJogo(): #função de começar o jogo, toda vez que for chamada, volta pro menu principal
     i = 1
     sum = 1
     botoesMenu = ["JOGAR","DIFICULDADE","TUTORIAL","SAIR"]
