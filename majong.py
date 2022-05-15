@@ -53,7 +53,8 @@ comecarJogo()
 
 #def getKey(key):
     #print(key)
-
+    
+#oi tudo bom
 
 
 #with Listener(on_press = getKey) as listener:   
