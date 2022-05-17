@@ -7,6 +7,10 @@ import math as math
 from pynput.keyboard import Key, Listener
 import threading
 
+
+run = True
+debounce = False
+
 def get_offset_value(lineNum):
     v = 90 * lineNum
     return round(math.sin(v * math.pi / 180.0))
@@ -28,14 +32,29 @@ def name_handler(counter):
            print('\n'*20)                                                                                    
            print('                                                            PRESSIONE QUALQUER TECLA PRA CONTINUAR' + dots_handler(counter))
 
+def criarQuadrado(texto):
+    print(73*' ' + chr(9484) + chr(9472)*20 + chr(9488))
+    print(73*' ' + chr(9474) + texto + chr(9474))
+    print(73*' ' + chr(9492) + chr(9472)*20 + chr(9496))
+
+
+def main_menu():
+    botoes_menu = ["       JOGAR        ","    DIFICULDADE     ","     COMO JOGAR     ","        SAIR        "]
+    for x in botoes_menu:
+        criarQuadrado(x)
+
+menu_thread = threading.Thread(target=main_menu)
+menu_thread.start()
+
 
 def main():
     #Draw start screen: Mahjong + Press any key to continue
-    run = True
+
     WAIT_TIME = 0.25
 
     def name_loop():
         ctr = 0
+        global run
         while run:
             time.sleep(WAIT_TIME)
             console.clear()
@@ -49,7 +68,18 @@ def main():
 
 
     def press(key):
-        run = False
+        global run
+        x = run
+        x = False
+        run = x
+        global debounce
+        if debounce == False:
+            debounce = True
+            console.clear()
+            main_menu()
+
+        if str(key) == 'Key.esc':
+            quit()
     
     def release(key):
         pass
