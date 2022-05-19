@@ -11,46 +11,61 @@ import threading
 number_of_buttons = 4 #total number of buttons on the y axis, to be changed when not in menu
 run = True #handles whether name_handler will run or not
 debounce = False #did player click? starts with false, changed on line 106
-ctrKey = 1 #counts how many keys have been pressed since the starting of the program, used in line 105 & 134
+x_blockKey = 1 #counts how many keys have been pressed since the starting of the program, used in line 105 & 134
+cuRRENT_SELECTED_X = 0
 CURRENT_SELECTED_Y = 1 #counter for the current button/card selected
 main_menu_enabled = False #changes to True if player is seeing main menu line 59
 difficulty_enabled = False
-diff_num = 1
+main_game_enabled = False
+diff_num = 4
+cronometro_enabled = False
+tab = [
+    1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,
+    0,0,1,1,1,1,1,1,0,0,
+    0,0,1,1,1,1,1,1,0,0,
+    1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,
+]
+selectable_blocks = [
+    0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,
+]
+LIMIT_X = 160
+LIMIT_Y = 50
+
+
+sym_lib = ['♥','♦','♣','§','☺','♠','•','♂','♀','♪','♫','►','◄','▲','▼','ø','¶','!','@','#','$','%','&','*']
 
 
 def main_game():
     console.clear()
-    #tab = [
-    #1,1,1,1,1,1,1,1,1,1,
-    #1,1,1,1,1,1,1,1,1,1,
-    #0,0,1,1,1,1,1,1,0,0,
-    #0,0,1,2,2,2,2,1,0,0,
-    #0,0,1,2,3,3,2,1,0,0,
-    #0,0,1,2,3,3,2,1,0,0,
-    #0.0,1,2,2,2,2,1,0,0,
-    #0,0,1,1,1,1,1,1,0,0,
-    #1,1,1,1,1,1,1,1,1,1,
-    #1,1,1,1,1,1,1,1,1,1,
-    #]
-    tab = [
-    1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,
-    0,0,1,1,1,1,1,1,0,0,
-    0,0,1,2,2,2,2,1,0,0,
-    0,0,1,2,3,3,2,1,0,0,
-    0.0,1,2,2,2,2,1,0,0,
-    0,0,1,1,1,1,1,1,0,0,
-    1,1,1,1,1,1,1,1,1,1,
-    1,1,1,1,1,1,1,1,1,1,
-    ]
-    LIMIT_X = 160
-    LIMIT_Y = 0
-    sym_lib = ['♥','♦','♣','§','☺','♠','•','♂','♀','♪','♫','►','◄','▲','▼','ø','¶','!','@','#','$','%','&','*']
+    global main_game_enabled
+    main_game_enabled = True
+    global main_menu_enabled
+    main_menu_enabled = False
+    global difficulty_enabled 
+    difficulty_enabled = False
 
     init(LIMIT_X)
     reset(1,2,LIMIT_Y -1, LIMIT_X)
 
-    def printPeca(x,y,sym,num,color):
+    
+    def cronometro():
+        contador = diff_num*60
+        for i in range(contador):
+            gotoxy(LIMIT_X-3,1)
+            print(contador)
+            contador -= 1
+            time.sleep(1)
+    global cronometro_enabled
+        
+    def printPeca(x,y,sym,num,color): 
+        
         if color == 1:
             print(Fore.LIGHTYELLOW_EX)
         else:
@@ -67,47 +82,42 @@ def main_game():
         print(chr(9492) + chr(9472)*3 + chr(9496))
 
     
-#    for i in tab:
-#        if i == 0:
-#            pass
-#        if
     def create_blocks():
-        x_b = -25
-        y_b = 1
-        ctr = 0
+        x_block = 0
+        y_block = 1
         b_arr = []
 
-        for i in tab:
-            if x_b <= 20:
-                if tab[ctr] == 0:
-                    x_b += 5 
-                else:
-                    peca = {'x':((LIMIT_X/2) + x_b) ,'y': y_b, 'sym': '♥','num':x_b , 'color':0}
-                    b_arr.append(peca)
-                    printPeca(peca['x'],peca['y'],peca['sym'],peca['num'],peca['color'])
-                    x_b += 5
-                    
+        def find_col(x,y):
+            if 10*(y-1) + x == cuRRENT_SELECTED_X:
+                return 1
             else:
-                y_b += 5
-                x_b = -25
-            ctr+=1
-        print(b_arr)
-                
-            
+                return 0
 
-#        for i in b_arr:
-#            printPeca(i['x'],i['y'],i['sym'],i['num'],i['color'])
+        for i in tab:
+            if i != 0:
+                    
+                block = {
+                    'x': (-25 + (LIMIT_X/2) + x_block * 5),
+                    'y': y_block*5,
+                    'sym': '♥',
+                    'num':x_block,
+                    'color': find_col(x_block,y_block)
+                }
+                b_arr.append(block)
+                printPeca(block['x'],block['y'],block['sym'],block['num'],block['color'])
 
-
+            x_block += 1
+            if x_block >= 10:
+                x_block = 0
+                y_block += 1            
     create_blocks()
-    #peca = {'x':(LIMIT_X/2) -5, 'y':1, 'img':sym_lib[0], 'num': 6, 'color':0}
-    #printPeca(peca['x'],peca['y'],peca['img'],peca['num'],peca['color'])
-
-    #definir tabuleiro
-    #gerar peças nos espaços livres duas em duas
-    #definir peças livres e ocupadas
-
+    print(cuRRENT_SELECTED_X)
     
+    if cronometro_enabled == False:
+        cronometro_thread = threading.Thread(target=cronometro)
+        cronometro_thread.start()
+        cronometro_enabled = True
+
 
 
 def get_offset_value(line_num): #given a line, it'll return an offset ranging from -1 to 1 and used on the name_handler function
@@ -207,16 +217,16 @@ def enter_handler(): #handles every enter key press
         arr = getSelectedArr(4)
         global diff_num
         if arr == [1,0,0,0]:
-            diff_num = 1
+            diff_num = 4
             main_menu()
         elif arr == [0,1,0,0]:
-            diff_num = 2
-            main_menu()
-        elif arr == [0,0,1,0]:
             diff_num = 3
             main_menu()
+        elif arr == [0,0,1,0]:
+            diff_num = 2
+            main_menu()
         elif arr == [0,0,0,1]:
-            diff_num = 4
+            diff_num = 1
             main_menu()
 
 def main(): #draws start screen: Mahjong + Press any key to continue, handles kb presses
@@ -225,13 +235,13 @@ def main(): #draws start screen: Mahjong + Press any key to continue, handles kb
     WAIT_TIME = 0.25
 
     def name_loop():
-        ctr = 0
+        x_block = 0
         global run
         while run: #main name loop
-            ctr += 1
+            x_block += 1
             time.sleep(WAIT_TIME)
             console.clear()
-            name_handler(ctr)
+            name_handler(x_block)
 
 
 
@@ -242,9 +252,10 @@ def main(): #draws start screen: Mahjong + Press any key to continue, handles kb
 
     def press(key):
         global debounce
-        global ctrKey
+        global x_blockKey
         global CURRENT_SELECTED_Y
-        if debounce == False and ctrKey >= 1:
+        global cuRRENT_SELECTED_X
+        if debounce == False and x_blockKey >= 1:
             debounce = True
             global run
             run = False
@@ -260,6 +271,10 @@ def main(): #draws start screen: Mahjong + Press any key to continue, handles kb
                     main_menu()
                 elif difficulty_enabled:
                     difficulty()
+            if main_game_enabled:
+                if cuRRENT_SELECTED_X > 10:
+                    cuRRENT_SELECTED_X -= 10
+                    main_game()
                 
 
 
@@ -271,7 +286,26 @@ def main(): #draws start screen: Mahjong + Press any key to continue, handles kb
                     main_menu()
                 elif difficulty_enabled:
                     difficulty()
+            if main_game_enabled:
+                if cuRRENT_SELECTED_X < 50:
+                    cuRRENT_SELECTED_X += 10
+                else:
+                    print('NAO TO SUBINDO')
+                    print(cuRRENT_SELECTED_X)
+                main_game()
 
+        if str(key) == 'Key.left':
+            if main_game_enabled:
+                if cuRRENT_SELECTED_X > 0:
+                    cuRRENT_SELECTED_X -= 1
+                    main_game()
+
+        if str(key) == 'Key.right':
+            if main_game_enabled:
+                if cuRRENT_SELECTED_X < 59:
+                    cuRRENT_SELECTED_X += 1
+                    main_game()
+        
         if str(key) == 'Key.enter':
             enter_handler()
 
@@ -284,7 +318,7 @@ def main(): #draws start screen: Mahjong + Press any key to continue, handles kb
             console.clear()
             main_menu()
         
-        ctrKey += 1
+        x_blockKey += 1
     
     def release(key):
         pass
