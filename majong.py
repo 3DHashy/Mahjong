@@ -1,5 +1,6 @@
 #from operator import truediv
 #from turtle import back
+from concurrent.futures import thread
 import console
 from console import *
 import time
@@ -7,6 +8,9 @@ from colorama import Back,Fore,Style
 import math as math
 from pynput.keyboard import Key, Listener
 import threading
+from random import randrange
+from playsound import playsound
+
 
 number_of_buttons = 4 #total number of buttons on the y axis, to be changed when not in menu
 run = True #handles whether name_handler will run or not
@@ -18,7 +22,7 @@ main_menu_enabled = False #changes to True if player is seeing main menu line 59
 difficulty_enabled = False
 main_game_enabled = False
 diff_num = 4
-cronometro_enabled = False
+countdown_enabled = False
 tab = [
     1,1,1,1,1,1,1,1,1,1,
     1,1,1,1,1,1,1,1,1,1,
@@ -27,19 +31,29 @@ tab = [
     1,1,1,1,1,1,1,1,1,1,
     1,1,1,1,1,1,1,1,1,1,
 ]
-selectable_blocks = [
-    0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,
-    0,0,0,0,0,0,0,0,0,0,
-]
 LIMIT_X = 160
 LIMIT_Y = 50
 
 
 sym_lib = ['♥','♦','♣','§','☺','♠','•','♂','♀','♪','♫','►','◄','▲','▼','ø','¶','!','@','#','$','%','&','*']
+
+
+def block_randomizer():
+#randomize a number and a symbol
+    r_number_array = []
+    r_symbol_array = []
+    for i in range(len(tab)):
+        r_number = randrange(4) + 1
+        r_symbol = sym_lib[randrange(24)]
+        r_number_array.append(r_number)
+        r_symbol_array.append(r_symbol)
+    #create two blocks from it:
+    return [r_number_array,r_symbol_array]
+    #find two free positions, put them in it
+        #reminder: free positions are the ones where there arent symbols on both sides
+
+number_array = block_randomizer()[0]
+symbol_array = block_randomizer()[1]
 
 
 def main_game():
@@ -55,19 +69,20 @@ def main_game():
     reset(1,2,LIMIT_Y -1, LIMIT_X)
 
     
-    def cronometro():
+    def countdown():
         contador = diff_num*60
         for i in range(contador):
             gotoxy(LIMIT_X-3,1)
             print(contador)
             contador -= 1
             time.sleep(1)
-    global cronometro_enabled
+    global countdown_enabled
+
         
-    def printPeca(x,y,sym,num,color): 
+    def print_block(x,y,sym,num,color): 
         
         if color == 1:
-            print(Fore.LIGHTYELLOW_EX)
+            print(Fore.LIGHTRED_EX)
         else:
             print(Fore.WHITE)
         gotoxy(x,y)
@@ -81,42 +96,48 @@ def main_game():
         gotoxy(x,y+4)
         print(chr(9492) + chr(9472)*3 + chr(9496))
 
-    
+
     def create_blocks():
         x_block = 0
         y_block = 1
         b_arr = []
+        def tab_arr_updater():
+            #updates tab_blocks array
+            x = 1
 
         def find_col(x,y):
             if 10*(y-1) + x == cuRRENT_SELECTED_X:
                 return 1
             else:
                 return 0
+        counter = 0
 
         for i in tab:
             if i != 0:
-                    
+                x = (-25 + (LIMIT_X/2) + x_block * 5)
+                y = y_block*5
                 block = {
-                    'x': (-25 + (LIMIT_X/2) + x_block * 5),
-                    'y': y_block*5,
-                    'sym': '♥',
-                    'num':x_block,
+                    'x': x,
+                    'y': y,
+                    'sym': number_array[counter],
+                    'num': symbol_array[counter],
                     'color': find_col(x_block,y_block)
                 }
                 b_arr.append(block)
-                printPeca(block['x'],block['y'],block['sym'],block['num'],block['color'])
+                print_block(block['x'],block['y'],block['sym'],block['num'],block['color'])
+                tab_arr_updater()
 
             x_block += 1
             if x_block >= 10:
                 x_block = 0
-                y_block += 1            
+                y_block += 1 
+            counter += 1           
     create_blocks()
-    print(cuRRENT_SELECTED_X)
     
-    if cronometro_enabled == False:
-        cronometro_thread = threading.Thread(target=cronometro)
-        cronometro_thread.start()
-        cronometro_enabled = True
+    if countdown_enabled == False:
+        countdown_thread = threading.Thread(target=countdown)
+        countdown_thread.start()
+        countdown_enabled = True
 
 
 
@@ -158,7 +179,7 @@ def getSelectedArr(num): #given the length of an array of buttons, returns array
 
 def create_box(texto,color): #creates a square from a given text
     if color == 1: #if selected, changes color to yellow
-        print(Fore.LIGHTYELLOW_EX)
+        print(Fore.LIGHTRED_EX)
     else:
         print(Fore.WHITE) #else changes color back to white
     print(73*' ' + chr(9484) + chr(9472)*20 + chr(9488)) #top
@@ -289,9 +310,6 @@ def main(): #draws start screen: Mahjong + Press any key to continue, handles kb
             if main_game_enabled:
                 if cuRRENT_SELECTED_X < 50:
                     cuRRENT_SELECTED_X += 10
-                else:
-                    print('NAO TO SUBINDO')
-                    print(cuRRENT_SELECTED_X)
                 main_game()
 
         if str(key) == 'Key.left':
