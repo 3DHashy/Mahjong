@@ -1,5 +1,6 @@
 #from operator import truediv
 #from turtle import back
+from array import array
 from concurrent.futures import thread
 import console
 from console import *
@@ -8,8 +9,8 @@ from colorama import Back,Fore,Style
 import math as math
 from pynput.keyboard import Key, Listener
 import threading
+import random
 from random import randrange
-from playsound import playsound
 
 
 number_of_buttons = 4 #total number of buttons on the y axis, to be changed when not in menu
@@ -26,8 +27,8 @@ countdown_enabled = False
 tab = [
     1,1,1,1,1,1,1,1,1,1,
     1,1,1,1,1,1,1,1,1,1,
-    0,0,1,1,1,1,1,1,0,0,
-    0,0,1,1,1,1,1,1,0,0,
+    1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,
     1,1,1,1,1,1,1,1,1,1,
     1,1,1,1,1,1,1,1,1,1,
 ]
@@ -42,10 +43,12 @@ def block_randomizer():
 #randomize a number and a symbol
     r_number_array = []
     r_symbol_array = []
-    for i in range(len(tab)):
+    for i in range(int(len(tab)/2)):
         r_number = randrange(4) + 1
         r_symbol = sym_lib[randrange(24)]
         r_number_array.append(r_number)
+        r_number_array.append(r_number)
+        r_symbol_array.append(r_symbol)
         r_symbol_array.append(r_symbol)
     #create two blocks from it:
     return [r_number_array,r_symbol_array]
@@ -55,7 +58,23 @@ def block_randomizer():
 number_array = block_randomizer()[0]
 symbol_array = block_randomizer()[1]
 
-
+def array_shuffler(array):
+    for i in range(60):
+        array.append(i+1)
+    random.shuffle(array) #randomizar array
+    #transformar em uma array de arrays
+    formatted_array = []
+    line = 0
+    for y in range(6):
+        x_arr = []
+        for x in range(10):
+                x_arr.append(array[x+line])
+        formatted_array.append(x_arr)
+        line += 10
+    return formatted_array
+        
+blank_array = []
+shuffled_array = array_shuffler(blank_array) 
 def main_game():
     console.clear()
     global main_game_enabled
@@ -72,7 +91,7 @@ def main_game():
     def countdown():
         contador = diff_num*60
         for i in range(contador):
-            gotoxy(LIMIT_X-3,1)
+            gotoxy(0,0)
             print(contador)
             contador -= 1
             time.sleep(1)
@@ -111,27 +130,28 @@ def main_game():
             else:
                 return 0
         counter = 0
-
         for i in tab:
             if i != 0:
-                x = (-25 + (LIMIT_X/2) + x_block * 5)
+                x = (-25 + (LIMIT_X/2) + shuffled_array[y][x] * 5)
                 y = y_block*5
+                
                 block = {
                     'x': x,
                     'y': y,
-                    'sym': number_array[counter],
-                    'num': symbol_array[counter],
+                    'sym': symbol_array[counter],
+                    'num': number_array[counter],
                     'color': find_col(x_block,y_block)
                 }
                 b_arr.append(block)
-                print_block(block['x'],block['y'],block['sym'],block['num'],block['color'])
                 tab_arr_updater()
 
             x_block += 1
-            if x_block >= 10:
+            if x >= 10:
                 x_block = 0
                 y_block += 1 
-            counter += 1           
+            counter += 1
+        for i in b_arr:
+                print_block(i['x'],i['y'],i['sym'],i['num'],i['color'])     
     create_blocks()
     
     if countdown_enabled == False:
