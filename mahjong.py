@@ -1,5 +1,3 @@
-
-
 import math as math
 from select import select
 from colorama import Fore
@@ -17,7 +15,8 @@ def main():
         x = 0
         y = 1
         selected_x = None
-
+        pontuacao = 0
+        ganhou = False
         tab = [
         1,1,1,1,1,1,1,1,1,1,
         1,1,1,1,1,1,1,1,1,1,
@@ -145,6 +144,13 @@ def main():
                 global_variables.num_arr[b] = 'nil'
                 global_variables.num_arr[a] = 'nil'
                 global_variables.selected_x = None
+
+                #VER SE O JOGO JÁ ACABOU
+                for elemento in global_variables.tab:
+                    if elemento == 1:
+                        continue
+                    sp_f.end_game('Win')
+                    global_variables.ganhou = True
                 
                 try:
                     add = 1
@@ -278,7 +284,37 @@ def main():
                 global_variables.difficulty_enabled = False
 
                 console.clear()
-                print("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.")
+                print("""
+                Objetivo do jogo:
+                 
+                -Combinar todas as peças todas as peças do tabuleiro antes que o tempo acabe.
+
+                Peças Abertas:
+
+                -Diz-se que uma peça está aberta ou exposta se puder ser movida para a esquerda ou para a direita sem perturbar outras peças.
+
+                -Duas peças abertas idênticas podem ser combinadas para liberar um espaço no tabuleiro.
+
+                Como jogar:
+
+                -O jogador deve combinar todas as peças abertas do tabuleiro antes que o tempo acabe.
+
+                -Use as setas do teclado para mover o cursor.
+
+                -Pressione Enter para selecionar duas peças e combiná-las.
+
+                -Pressione R para randomizar as peças do tabuleiro atual.
+
+                -Pressione F para voltar para o menu.
+
+
+
+
+                PRESSIONE F PARA VOLTAR
+
+                BOM JOGO !!!
+
+                """)
 
 
         def game():
@@ -317,20 +353,79 @@ def main():
                 counter_blockgen += 1
 
             def countdown():
-                contador = global_variables.difficulty*60
-                for i in range(contador):
+                contador = global_variables.difficulty*120
+                for _ in range(contador):
                     gotoxy(160-3,1)
                     print(contador)
                     contador -= 1
+                    global_variables.pontuacao = contador * 100
                     time.sleep(1)
                     if global_variables.countdown_enabled == False:
                         break
+                if global_variables.ganhou == False:
+                    sp_f.end_game('Lose')
 
             if global_variables.countdown_enabled == False:
                 global_variables.countdown_enabled = True
                 countdown_thread = threading.Thread(target=countdown)
                 countdown_thread.start()
+        
+        def end_game(outcome):
+            
+            #DEBUG
+            global_variables.game_enabled = False
+            global_variables.menu_enabled = False
+            global_variables.difficulty_enabled = False
+            global_variables.tutorial_enabled = False
 
+            console.clear()
+
+            if outcome == 'Win':
+                print('\n'*8)
+                print(Fore.GREEN)
+                print(30*' ' +'   ▄███████▄    ▄████████    ▄████████    ▄████████ ▀█████████▄     ▄████████ ███▄▄▄▄      ▄████████')
+                print(30*' ' +'  ███    ███   ███    ███   ███    ███   ███    ███   ███    ███   ███    ███ ███▀▀▀██▄   ███    ███')
+                print(30*' ' +'  ███    ███   ███    ███   ███    ███   ███    ███   ███    ███   ███    █▀  ███   ███   ███    █▀ ')
+                print(30*' ' +'  ███    ███   ███    ███  ▄███▄▄▄▄██▀   ███    ███  ▄███▄▄▄██▀   ▄███▄▄▄     ███   ███   ███       ')
+                print(30*' ' +'▀█████████▀  ▀███████████ ▀▀███▀▀▀▀▀   ▀███████████ ▀▀███▀▀▀██▄  ▀▀███▀▀▀     ███   ███ ▀███████████')
+                print(30*' ' +'  ███          ███    ███ ▀███████████   ███    ███   ███    ██▄   ███    █▄  ███   ███          ███')
+                print(30*' ' +'  ███          ███    ███   ███    ███   ███    ███   ███    ███   ███    ███ ███   ███    ▄█    ███')
+                print(30*' ' +' ▄████▀        ███    █▀    ███    ███   ███    █▀  ▄█████████▀    ██████████  ▀█   █▀   ▄████████▀ ')
+                print(30*' ' +'                            ███    ███                                                              ')
+                print('\n')
+                print(30*' ' +'                                        VOCÊ GANHOU!!!')
+                print(Fore.WHITE)
+                print(30*' '+ '                                        '+ f'PONTUAÇÃO: {global_variables.pontuacao}')
+
+            else:
+                text = """
+                  ▄████  ▄▄▄       ███▄ ▄███▓▓█████     ▒█████   ██▒   █▓▓█████  ██▀███  
+                 ██▒ ▀█▒▒████▄    ▓██▒▀█▀ ██▒▓█   ▀    ▒██▒  ██▒▓██░   █▒▓█   ▀ ▓██ ▒ ██▒
+                ▒██░▄▄▄░▒██  ▀█▄  ▓██    ▓██░▒███      ▒██░  ██▒ ▓██  █▒░▒███   ▓██ ░▄█ ▒
+                ░▓█  ██▓░██▄▄▄▄██ ▒██    ▒██ ▒▓█  ▄    ▒██   ██░  ▒██ █░░▒▓█  ▄ ▒██▀▀█▄  
+                ░▒▓███▀▒ ▓█   ▓██▒▒██▒   ░██▒░▒████▒   ░ ████▓▒░   ▒▀█░  ░▒████▒░██▓ ▒██▒
+                 ░▒   ▒  ▒▒   ▓▒█░░ ▒░   ░  ░░░ ▒░ ░   ░ ▒░▒░▒░    ░ ▐░  ░░ ▒░ ░░ ▒▓ ░▒▓░
+                  ░   ░   ▒   ▒▒ ░░  ░      ░ ░ ░  ░     ░ ▒ ▒░    ░ ░░   ░ ░  ░  ░▒ ░ ▒░
+                ░ ░   ░   ░   ▒   ░      ░      ░      ░ ░ ░ ▒       ░░     ░     ░░   ░ 
+                      ░       ░  ░       ░      ░  ░       ░ ░        ░     ░  ░   ░     
+                                                                     ░                   
+                                            VOCÊ PERDEU!!!
+                """
+                
+                print('\n'*8)
+                print(Fore.RED)
+                print(43*' '+'  ▄████  ▄▄▄       ███▄ ▄███▓▓█████     ▒█████   ██▒   █▓▓█████  ██▀███  ')
+                print(43*' '+' ██▒ ▀█▒▒████▄    ▓██▒▀█▀ ██▒▓█   ▀    ▒██▒  ██▒▓██░   █▒▓█   ▀ ▓██ ▒ ██▒')
+                print(43*' '+'▒██░▄▄▄░▒██  ▀█▄  ▓██    ▓██░▒███      ▒██░  ██▒ ▓██  █▒░▒███   ▓██ ░▄█ ▒')
+                print(43*' '+'░▓█  ██▓░██▄▄▄▄██ ▒██    ▒██ ▒▓█  ▄    ▒██   ██░  ▒██ █░░▒▓█  ▄ ▒██▀▀█▄  ')
+                print(43*' '+'░▒▓███▀▒ ▓█   ▓██▒▒██▒   ░██▒░▒████▒   ░ ████▓▒░   ▒▀█░  ░▒████▒░██▓ ▒██▒')
+                print(43*' '+' ░▒   ▒  ▒▒   ▓▒█░░ ▒░   ░  ░░░ ▒░ ░   ░ ▒░▒░▒░    ░ ▐░  ░░ ▒░ ░░ ▒▓ ░▒▓░')
+                print(43*' '+'  ░   ░   ▒   ▒▒ ░░  ░      ░ ░ ░  ░     ░ ▒ ▒░    ░ ░░   ░ ░  ░  ░▒ ░ ▒░')
+                print(43*' '+'░ ░   ░   ░   ▒   ░      ░      ░      ░ ░ ░ ▒       ░░     ░     ░░   ░ ')
+                print(43*' '+'      ░       ░  ░       ░      ░  ░       ░ ░        ░     ░  ░   ░     ')
+                print(43*' '+'                                                     ░                   ')
+                print(43*' '+'                            VOCÊ PERDEU!!!')
+                print(Fore.WHITE)
             
 
     sp_f.start()
@@ -415,9 +510,14 @@ def main():
                 gen_f.randomizer()
                 sp_f.game()
 
+            if str(key) == "'v'":
+                sp_f.end_game('Win')
+                global_variables.ganhou = True
+
             if str(key) == 'Key.esc':
                 console.clear()
                 quit()
+
 
         def release(key):
             pass
