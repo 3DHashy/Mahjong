@@ -181,7 +181,7 @@ def main():
                             return False
                         return True
                 #VER SE TEM BLOCOS EM ALGUMA CAMADA
-                if return_game_ended(global_variables.tab[0]) and return_game_ended(global_variables.tab[1]) and return_game_ended(global_variables.tab[2]):
+                if return_game_ended(global_variables.tab[0]):
                     sp_f.end_game('Win')
                     global_variables.ganhou = True
                 
