@@ -1,4 +1,5 @@
 import math as math
+from types import NoneType
 from colorama import Fore
 import time
 import console
@@ -194,11 +195,13 @@ def main():
                     while global_variables.tab[global_variables.z -1][global_variables.x+add] == 0:
                         add += 1
                     global_variables.x += add
+                    
                 except:
                     add = 1
                     while global_variables.tab[global_variables.z -1][global_variables.x-add] == 0:
                         add -= 1
                     global_variables.x -= add
+                
 
             else:
                 #se no caso de as cartas não forem idênticas, seleciona a carta que o cursor está no momento
@@ -239,7 +242,7 @@ def main():
 
             #se o jogador estiver no JOGO:
             elif global_variables.game_enabled:
-                if global_variables.selected_x:
+                if type(global_variables.selected_x) != NoneType:
                     z_cursor = global_variables.z - 1
                     z_selected = global_variables.selected_z - 1
                     gen_f.compare_block(global_variables.num_arr[z_selected], global_variables.num_arr[z_cursor],global_variables.tab[z_selected],global_variables.tab[z_cursor],global_variables.borda_E[z_selected],global_variables.borda_D[z_selected],global_variables.borda_E[z_cursor],global_variables.borda_D[z_cursor])
@@ -401,7 +404,7 @@ def main():
                 gen_f.randomizer(global_variables.num_arr[1],global_variables.tab[1])
                 gen_f.randomizer(global_variables.num_arr[2],global_variables.tab[2])
 
-            #405-451 gera todas as camadas:   
+            #gera todas as camadas:   
             counter_blockgen = 0
             pos_x = 0
             pos_y = 1
