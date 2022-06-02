@@ -450,15 +450,17 @@ def main():
                     pos_y_3 += 1
                 counter_blockgen_3 += 1
 
+            print(Fore.WHITE)
             gotoxy(80-3,35)
             print("Pressione R para randomizar")
 
             def countdown():
                 #cronometro que fica no canto da tela
                 #multiplica pela dificuldade, maior dificuldade = menor tempo
-                contador = global_variables.difficulty*120
+                contador = global_variables.difficulty*240
                 if global_variables.countdown_enabled == True:
                     for _ in range(contador):
+                        print(Fore.WHITE)
                         gotoxy(160-3,1)
                         print("TEMPO: "+str(contador))
                         contador = round(contador - 0.1,1)
