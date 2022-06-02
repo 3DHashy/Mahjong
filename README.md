@@ -10,8 +10,8 @@
 4. *Lucas Ribeiro Costa*
 
 # Keybinds:
- *Esc* para sair
+ **Esc** para sair
 
- *R* para randomizar o tabuleiro
+ **R** para randomizar o tabuleiro
 
- *F* para voltar para o menu
+ **F** para voltar para o menu
