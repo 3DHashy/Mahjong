@@ -11,5 +11,7 @@
 
 # Keybinds:
  *Esc* para sair
+
  *R* para randomizar o tabuleiro
+
  *F* para voltar para o menu
