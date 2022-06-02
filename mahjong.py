@@ -1,6 +1,4 @@
 import math as math
-from select import select
-from tkinter import Variable
 from colorama import Fore
 import time
 import console
@@ -12,7 +10,7 @@ from random import randrange
 
 def main():
     class global_variables:
-        blocos = []
+        #classe de variáveis globais utilizadas em todo o jogo
         x = 0
         y = 1
         z = 1
@@ -56,25 +54,27 @@ def main():
         game_enabled = False
         game_started = False
         countdown_enabled = False
-        WAIT_TIME = 0.25
         has_pressed = False
         botoes_menu = ["       JOGAR        ","     DIFICULDADE    ","     COMO JOGAR     ","        SAIR        "]
-        botoes_dificuldade = ["      INICIANTE     ","     EXPERIENTE     ","        GENIO       ","      EINSTEIN      "]
+        botoes_dificuldade = ["      INICIANTE     ","     EXPERIENTE     ","        GÊNIO       ","      EINSTEIN      "]
         sym_lib = ['♥','♦','♣','§','☺','♠','•','♂','♀','♪','♫','►','◄','▲','▼','ø','¶','!','@','#','$','%','&','*']
         num_arr = []
-        countdown_counter = 0
+        pressed_esc = False
 
 
     class gen_f:
+        #classes de funções mais gerais, que não necessariamente são ligadas ao jogo (podem ter mais de um uso)
+        def get_offset_value(line_num): 
+            #dada uma linha, ela retorna um valor de -1 a 1. usada para setar um offset no nome MAHJONG
+            v = 90 * line_num 
+            return round(math.sin(v * math.pi / 180.0))
 
-        def get_offset_value(line_num): #given a line, it'll return an offset ranging from -1 to 1 and used on the name_handler function
-            v = 90 * line_num #multiplies line_num by 90 to get the next sin value
-            return round(math.sin(v * math.pi / 180.0)) #returns sin of v, ranging from -1 to 1
+        def dots_handler(currentC): 
+            #responsável pelo número de pontos (...) no início do jogo e sua movimentação
+            return currentC % 4 * '.'
 
-        def dots_handler(currentC): #handles the dots below the mahjong main title
-            return currentC % 4 * '.' #returns a different amount of dots depending on the current counter number
-
-        def getSelectedArr(num): #given the length of an array of buttons, returns array of 0s and 1s depending on CURRENT_SELECTED_Y
+        def getSelectedArr(num):
+            #usando o global y, retorna uma array de 0s e 1s. usado para selecionar cada item do MENU
             selectedArr = []
             for i in range(num):
                 if i+1 == global_variables.y: 
@@ -84,6 +84,7 @@ def main():
             return selectedArr
 
         def find_col(x,y,z):
+            #dados o x,y e z de uma peça, acha a cor que o bloco deve ser pintado (0 = branco, 1 = vermelho, 2 = verde (selecionado))
             if global_variables.z == z or global_variables.selected_z == z:
                 if 10*(y-1) + x == global_variables.selected_x and global_variables.selected_z == z:
                     return 2
@@ -96,11 +97,7 @@ def main():
 
 
         def randomizer(array,tab):
-            #procurar nil
-            #guardar posição nil
-            #tirar nil
-            #shuffle
-            #adicionar nil insert()
+            #procura nils, guarda suas posições, tira os nils, randomiza a array, coloca de volta os nils em suas respectivas posições
             posicoes_sem_carta_array = []
             contador = 0
             try:
@@ -120,6 +117,7 @@ def main():
                 array.insert(posicoes_sem_carta_array[i],'nil')
 
         def gerar_array_simbolo_e_numero(array,tab):
+            #dada uma array, gera aleatoriamente uma array de números concatenados com símbolos (ex: ['2♫','1ø','4¶']) e dá append na array original
             concat_array = []
             for _ in range(int(len(tab)/2)):
                 r_number = randrange(4) + 1
@@ -131,7 +129,7 @@ def main():
 
 
         def print_block(x,y,sym,num,color): 
-
+            #responsável por printar os blocos no jogo e pintá-los
             if color == 1:
                 print(Fore.RED)
             elif color == 2:
@@ -150,9 +148,11 @@ def main():
             print(chr(9492) + chr(9472)*3 + chr(9496))
 
         def compare_block(array_selected,array_cursor,tab_selected,tab_cursor,borda_E_S,borda_D_S,borda_E_C,borda_D_C):
+            #responsável por fazer a comparação entre dois blocos e excluí-los se forem idênticos
             x_cursor = global_variables.x
             x_selected = global_variables.selected_x
             def comparar_x_com_valor_borda(array,x,soma):
+                #dado um x, a função retorna True ou False dependendo se esse x estiver na borda ou não
                 contador_comparar_x_com_valor_borda = 0
                 for valor_borda in array:
                     if x == valor_borda:
@@ -168,23 +168,27 @@ def main():
 
 
             if (array_selected[x_selected] == array_cursor[x_cursor]) and (x_cursor!=x_selected) and (e or f) and (g or h): 
+                #no caso de as duas peças estiverem na borda e forem idênticas
                 tab_selected[x_selected] = 0
                 tab_cursor[x_cursor] = 0
                 array_selected[x_selected] = 'nil'
                 array_cursor[x_cursor] = 'nil'
                 global_variables.selected_x = None
 
-                #VER SE O JOGO JÁ ACABOU
+                
                 def return_game_ended(tab):
+                    #responsável por checar se o jogo já acabou:
                     for elemento in tab:
                         if elemento == 1:
                             return False
                         return True
-                #VER SE TEM BLOCOS EM ALGUMA CAMADA
+
+                #chama a função responsável pela checagem se o jogo acabou
                 if return_game_ended(global_variables.tab[0]):
                     sp_f.end_game('Win')
                     global_variables.ganhou = True
                 
+                #após retirar a carta, o cursor deve mudar para uma carta ou a direita dela (try) ou, se não existir, a esquerda (except)
                 try:
                     add = 1
                     while global_variables.tab[global_variables.z -1][global_variables.x+add] == 0:
@@ -195,12 +199,16 @@ def main():
                     while global_variables.tab[global_variables.z -1][global_variables.x-add] == 0:
                         add -= 1
                     global_variables.x -= add
+
             else:
+                #se no caso de as cartas não forem idênticas, seleciona a carta que o cursor está no momento
                 global_variables.selected_x = global_variables.x
                 global_variables.selected_z = global_variables.z
 
         def enter_handler():
-            if global_variables.menu_enabled: #if player is looking at main menu, the array will have 4 elements
+            #responsável por ditar o que acontece quando o jogador aperta enter, dado onde ele está no jogo no momento
+            #se o jogador estiver no MENU:
+            if global_variables.menu_enabled: 
                 arr = gen_f.getSelectedArr(4)
                 if arr == [1,0,0,0]:
                     sp_f.game()
@@ -213,6 +221,7 @@ def main():
                     console.clear()
                     quit()
 
+            #se o jogador estiver na tela de DIFICULDADE:
             elif global_variables.difficulty_enabled:
                 arr = gen_f.getSelectedArr(4)
                 if arr == [1,0,0,0]:
@@ -227,6 +236,8 @@ def main():
                 elif arr == [0,0,0,1]:
                     global_variables.difficulty = 1
                     sp_f.menu()
+
+            #se o jogador estiver no JOGO:
             elif global_variables.game_enabled:
                 if global_variables.selected_x:
                     z_cursor = global_variables.z - 1
@@ -238,46 +249,52 @@ def main():
 
                 sp_f.game()
 
-        def create_box(texto,color): #creates a square from a given text
-            if color == 1: #if selected, changes color to yellow
+        def create_box(texto,color):
+            #cria as caixas do menu, diferente das peças do jogo
+            if color == 1: 
                 print(Fore.RED)
             else:
-                print(Fore.WHITE) #else changes color back to white
-            print(73*' ' + chr(9484) + chr(9472)*20 + chr(9488)) #top
-            print(73*' ' + chr(9474) + texto + chr(9474)) #middle + text
-            print(73*' ' + chr(9492) + chr(9472)*20 + chr(9496)) #bottom
+                print(Fore.WHITE) 
+            print(73*' ' + chr(9484) + chr(9472)*20 + chr(9488)) 
+            print(73*' ' + chr(9474) + texto + chr(9474)) 
+            print(73*' ' + chr(9492) + chr(9472)*20 + chr(9496)) 
 
     
     class sp_f:
+        #classe de funções específicas do jogo
         def start():
-
-            def name_handler(counter): #handles all the name changing every time it is called
-                print('\n'*8) #prints 8 empty lines above the mahjong main title
-                print(Fore.LIGHTRED_EX) #sets the colors of all lines below to red
+            #é a tela que aparece o nome MAHJONG que se mexe
+            def name_handler(counter):
+                #toda vez que for chamada, printa o nome com um offset variado
+                print('\n'*8)
+                print(Fore.RED)
                 print( " " * (48 + gen_f.get_offset_value(counter  )) + "███╗   ███╗ █████╗ ██╗  ██╗     ██╗ ██████╗ ███╗   ██╗ ██████╗")
                 print( " " * (48 + gen_f.get_offset_value(counter+1)) + "████╗ ████║██╔══██╗██║  ██║     ██║██╔═══██╗████╗  ██║██╔════╝")
                 print( " " * (48 + gen_f.get_offset_value(counter+2)) + "██╔████╔██║███████║███████║     ██║██║   ██║██╔██╗ ██║██║  ███╗")
                 print( " " * (48 + gen_f.get_offset_value(counter+3)) + "██║╚██╔╝██║██╔══██║██╔══██║██   ██║██║   ██║██║╚██╗██║██║   ██║")
                 print( " " * (48 + gen_f.get_offset_value(counter+4)) + "██║ ╚═╝ ██║██║  ██║██║  ██║╚█████╔╝╚██████╔╝██║ ╚████║╚██████╔╝")
                 print( " " * (48 + gen_f.get_offset_value(counter+5)) + "╚═╝     ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝ ╚════╝  ╚═════╝ ╚═╝  ╚═══╝ ╚═════╝" )
-                print(Fore.WHITE) #sets the colors of all lines below to white
-                print('\n'*20) #prints 20 empty lines below                                                                                    
+                print(Fore.WHITE) 
+                print('\n'*20)                                                                        
                 print('                                                            PRESSIONE ESPAÇO PRA CONTINUAR' + gen_f.dots_handler(counter)) 
 
         
             def name_loop():
+                #função que chama o nome com um offset diferente (counter)
                 counter_name_loop = 0
                 while global_variables.name_loop_enabled:
                     counter_name_loop += 1
-                    time.sleep(global_variables.WAIT_TIME)
+                    time.sleep(0.25)
                     console.clear()
-                    name_handler(counter_name_loop) #CHAMA A FUNÇÃO NAME HANDLER DENTRO DO SPECIFIC_FUNCTIONS
+                    name_handler(counter_name_loop)
 
+            #criação de uma thread única para mover o nome
             name_thread = threading.Thread(target=name_loop)
             name_thread.start()
 
         def menu():
-
+            #tela do menu com 4 botões
+            #toda vez que é chamada, dá clear e imprime o menu novamente com cursor (bloco pintado) diferente
             global_variables.menu_enabled = True
             
             #DEBUG
@@ -298,7 +315,9 @@ def main():
 
 
         class menu_screens:
+            #classe de telas do menu, são elas: dificuldade e tutorial
             def difficulty():
+                #novamente, dá clear e printa dificuldade (muito parecido com o menu)
                 global_variables.difficulty_enabled = True
 
                 #DEBUG
@@ -314,6 +333,7 @@ def main():
                     counter_difficulty += 1
 
             def tutorial():
+                #dá clear e printa o tutorial do jogo
                 global_variables.tutorial_enabled = True
 
                 #DEBUG
@@ -340,10 +360,11 @@ def main():
 
                 -Pressione Enter para selecionar duas peças e combiná-las.
 
-                -Pressione R para randomizar as peças do tabuleiro atual.
+                -Ficou preso? pressione R para randomizar as peças do tabuleiro atual.
 
                 -Pressione F para voltar para o menu.
 
+                -Pressione Esc a qualquer momento para sair do jogo.
 
 
 
@@ -355,6 +376,7 @@ def main():
 
 
         def game():
+            #função do jogo principal, dá clear e printa todas as cartas do jogo toda vez que é chamada
             global_variables.game_enabled = True
 
             #DEBUG
@@ -369,7 +391,8 @@ def main():
             init(160)
             reset(1,2,49, 160)
 
-            if global_variables.game_started == False: #gerar tabuleiro randomizado
+            if global_variables.game_started == False:
+                #gerar todas as camadas do tabuleiro randomizado
                 global_variables.game_started = True
                 gen_f.gerar_array_simbolo_e_numero(global_variables.num_arr,global_variables.tab[0])
                 gen_f.gerar_array_simbolo_e_numero(global_variables.num_arr,global_variables.tab[1])
@@ -377,7 +400,8 @@ def main():
                 gen_f.randomizer(global_variables.num_arr[0],global_variables.tab[0])
                 gen_f.randomizer(global_variables.num_arr[1],global_variables.tab[1])
                 gen_f.randomizer(global_variables.num_arr[2],global_variables.tab[2])
-                
+
+            #405-451 gera todas as camadas:   
             counter_blockgen = 0
             pos_x = 0
             pos_y = 1
@@ -385,6 +409,7 @@ def main():
                 if block != 0:
                     pixel_pos_x = (-25 + (160/2) + pos_x * 5)
                     pixel_pos_y = pos_y * 5
+                    #o [1:2] pega o símbolo pois a array concatenada tem cada elemento assim '1♠', mesmo princípio com [0:1] (nesse caso, pega o número)
                     gen_f.print_block(pixel_pos_x,pixel_pos_y,global_variables.num_arr[0][counter_blockgen][1:2],global_variables.num_arr[0][counter_blockgen][0:1],gen_f.find_col(pos_x,pos_y,1))
 
                 pos_x += 1
@@ -425,32 +450,43 @@ def main():
                     pos_y_3 += 1
                 counter_blockgen_3 += 1
 
-            def countdown():
-                contador = global_variables.difficulty*120
-                for _ in range(contador):
-                    gotoxy(160-3,1)
-                    print(contador)
-                    contador -= 1
-                    global_variables.pontuacao = contador * 100
-                    time.sleep(1)
-                    if global_variables.countdown_enabled == False:
-                        break
-                if global_variables.ganhou == False:
-                    if global_variables.menu_enabled == False:
-                        sp_f.end_game('Lose')
+            gotoxy(80-3,35)
+            print("Pressione R para randomizar")
 
+            def countdown():
+                #cronometro que fica no canto da tela
+                #multiplica pela dificuldade, maior dificuldade = menor tempo
+                contador = global_variables.difficulty*120
+                if global_variables.countdown_enabled == True:
+                    for _ in range(contador):
+                        gotoxy(160-3,1)
+                        print("TEMPO: "+str(contador))
+                        contador = round(contador - 0.1,1)
+                        global_variables.pontuacao = contador * 100
+                        time.sleep(0.1)
+                        if global_variables.countdown_enabled == False:
+                            break
+                    if global_variables.ganhou == False:
+                        if global_variables.menu_enabled == False:
+                            if global_variables.pressed_esc == False:
+                                #quando o tempo acabar, o jogador perde
+                                sp_f.end_game('Lose')
+
+            #cria uma nova thread para o cronometro somente uma vez
             if global_variables.countdown_enabled == False:
                 global_variables.countdown_enabled = True
                 countdown_thread = threading.Thread(target=countdown)
                 countdown_thread.start()
         
         def end_game(outcome):
-            
+            #tela de fim de jogo, depende se o jogador ganhou ou perdeu
+
             #DEBUG
             global_variables.game_enabled = False
             global_variables.menu_enabled = False
             global_variables.difficulty_enabled = False
             global_variables.tutorial_enabled = False
+            global_variables.countdown_enabled = False
 
             console.clear()
 
@@ -493,140 +529,160 @@ def main():
 
 
     class callback:
+        #classe que é responsável por todo o input do usuário, chamando as funções específicas e gerais
+
         def press(key):
-            if global_variables.has_pressed == False:
-                global_variables.has_pressed == True
-                global_variables.name_loop_enabled = False
-                time.sleep(0.5)
-                menu_thread = threading.Thread(target=sp_f.menu)
-                menu_thread.start()
+            #clicou qualquer tecla, ele sai do menu
+
+            if str(key) == 'Key.space':
+                if global_variables.has_pressed == False:
+                    global_variables.has_pressed == True
+                    global_variables.name_loop_enabled = False
+                    time.sleep(0.5)
+                    menu_thread = threading.Thread(target=sp_f.menu)
+                    menu_thread.start()
             
             if str(key) == 'Key.up':
-                if global_variables.y > 1:
-                    global_variables.y -= 1
-                if global_variables.menu_enabled:
-                    sp_f.menu()
-                elif global_variables.difficulty_enabled:
-                    sp_f.menu_screens.difficulty()
-                elif global_variables.game_enabled:
-                    try:
-                        if global_variables.tab[2][global_variables.x-10] != 0:
-                            global_variables.z = 3
-                        else:
-                            if global_variables.tab[1][global_variables.x-10] != 0:
-                                global_variables.z = 2
+                if global_variables.has_pressed == True:
+                    if global_variables.y > 1:
+                        global_variables.y -= 1
+                    if global_variables.menu_enabled:
+                        sp_f.menu()
+                    elif global_variables.difficulty_enabled:
+                        sp_f.menu_screens.difficulty()
+                    elif global_variables.game_enabled:
+                        try:
+                            if global_variables.tab[2][global_variables.x-10] != 0:
+                                global_variables.z = 3
                             else:
-                                if global_variables.tab[0][global_variables.x-10] != 0:
-                                    global_variables.z = 1
-                    except:
-                        pass
-                    if global_variables.x > 9:
-                        
-                        add = 10
-                    
-                        while global_variables.tab[global_variables.z-1][global_variables.x - add] == 0:
-                            if global_variables.x - add > 9:
-                                add += 10
-                            else:
-                                add = 0
+                                if global_variables.tab[1][global_variables.x-10] != 0:
+                                    global_variables.z = 2
+                                else:
+                                    if global_variables.tab[0][global_variables.x-10] != 0:
+                                        global_variables.z = 1
+                        except:
+                            pass
+                        if global_variables.x > 9:
 
+                            add = 10
+
+                            while global_variables.tab[global_variables.z-1][global_variables.x - add] == 0:
+                                if global_variables.x - add > 9:
+                                    add += 10
+                                else:
+                                    add = 0
+
+                            global_variables.x -= add
+                            sp_f.game()
+
+            if str(key) == 'Key.down':
+                if global_variables.has_pressed == True:
+                    if global_variables.y < 4:
+                        global_variables.y += 1
+                    if global_variables.menu_enabled:
+                        sp_f.menu()
+                    elif global_variables.difficulty_enabled:
+                        sp_f.menu_screens.difficulty()
+                    elif global_variables.game_enabled:
+
+                        try:
+                            if global_variables.tab[2][global_variables.x+10] != 0:
+                                global_variables.z = 3
+                            else:
+                                if global_variables.tab[1][global_variables.x+10] != 0:
+                                    global_variables.z = 2
+                                else:
+                                    if global_variables.tab[0][global_variables.x+10] != 0:
+                                        global_variables.z = 1
+                        except:
+                            pass
+                        if global_variables.x < 50:
+
+                            try:
+                                add = 10
+                                while global_variables.tab[global_variables.z-1][global_variables.x + add] == 0:
+                                    add += 10
+                            except:
+                                add = 0
+                            global_variables.x += add
+                            sp_f.game()
+            
+            if str(key) == 'Key.right':
+                if global_variables.has_pressed == True:
+                    if global_variables.game_enabled:
+                        try:
+                            if global_variables.tab[2][global_variables.x+1] != 0:
+                                global_variables.z = 3
+                            else:
+                                if global_variables.tab[1][global_variables.x+1] != 0:
+                                    global_variables.z = 2
+                                else:
+                                    if global_variables.tab[0][global_variables.x+1] != 0:
+                                        global_variables.z = 1
+                        except:
+                            pass
+                            
+                    if global_variables.x < 59:
+                        add = 1
+                        while global_variables.tab[global_variables.z-1][global_variables.x+add] == 0:
+                            add+=1
+                        global_variables.x += add
+                        sp_f.game()
+
+            if str(key) == 'Key.left':
+                if global_variables.has_pressed == True:
+                    if global_variables.game_enabled:
+                        try:
+                            if global_variables.tab[2][global_variables.x-1] != 0:
+                                global_variables.z = 3
+                            else:
+                                if global_variables.tab[1][global_variables.x-1] != 0:
+                                    global_variables.z = 2
+                                else:
+                                    if global_variables.tab[0][global_variables.x-1] != 0:
+                                        global_variables.z = 1
+                        except:
+                            pass
+
+                    if global_variables.x > 0:
+                        add = 1
+                        while global_variables.tab[global_variables.z-1][global_variables.x-add] == 0:
+                            add+=1
                         global_variables.x -= add
                         sp_f.game()
 
-            if str(key) == 'Key.down':
-                if global_variables.y < 4:
-                    global_variables.y += 1
-                if global_variables.menu_enabled:
-                    sp_f.menu()
-                elif global_variables.difficulty_enabled:
-                    sp_f.menu_screens.difficulty()
-                elif global_variables.game_enabled:
-
-                    try:
-                        if global_variables.tab[2][global_variables.x+10] != 0:
-                            global_variables.z = 3
-                        else:
-                            if global_variables.tab[1][global_variables.x+10] != 0:
-                                global_variables.z = 2
-                            else:
-                                if global_variables.tab[0][global_variables.x+10] != 0:
-                                    global_variables.z = 1
-                    except:
-                        pass
-                    if global_variables.x < 50:
-                        
-                        try:
-                            add = 10
-                            while global_variables.tab[global_variables.z-1][global_variables.x + add] == 0:
-                                add += 10
-                        except:
-                            add = 0
-                        global_variables.x += add
-                        sp_f.game()
-            
-            if str(key) == 'Key.right':
-
-                if global_variables.game_enabled:
-                    try:
-                        if global_variables.tab[2][global_variables.x+1] != 0:
-                            global_variables.z = 3
-                        else:
-                            if global_variables.tab[1][global_variables.x+1] != 0:
-                                global_variables.z = 2
-                            else:
-                                if global_variables.tab[0][global_variables.x+1] != 0:
-                                    global_variables.z = 1
-                    except:
-                        pass
-                        
-                if global_variables.x < 59:
-                    add = 1
-                    while global_variables.tab[global_variables.z-1][global_variables.x+add] == 0:
-                        add+=1
-                    global_variables.x += add
-                    sp_f.game()
-
-            if str(key) == 'Key.left':
-                if global_variables.game_enabled:
-                    try:
-                        if global_variables.tab[2][global_variables.x-1] != 0:
-                            global_variables.z = 3
-                        else:
-                            if global_variables.tab[1][global_variables.x-1] != 0:
-                                global_variables.z = 2
-                            else:
-                                if global_variables.tab[0][global_variables.x-1] != 0:
-                                    global_variables.z = 1
-                    except:
-                        pass
-
-                if global_variables.x > 0:
-                    add = 1
-                    while global_variables.tab[global_variables.z-1][global_variables.x-add] == 0:
-                        add+=1
-                    global_variables.x -= add
-                    sp_f.game()
-
             if str(key) == 'Key.enter':
-                gen_f.enter_handler()
+                if global_variables.has_pressed == True:
+                    gen_f.enter_handler()
 
             if str(key) == "'f'":
-                console.clear()
-                sp_f.menu()
+                if global_variables.has_pressed == True:
+                    console.clear()
+                    sp_f.menu()
 
             if str(key) == "'r'":
-                console.clear()
-                gen_f.randomizer(global_variables.num_arr[0],global_variables.tab[0])
-                gen_f.randomizer(global_variables.num_arr[1],global_variables.tab[1])
-                gen_f.randomizer(global_variables.num_arr[2],global_variables. tab[2])
-                
-                sp_f.game()
+                if global_variables.has_pressed == True:
+                    console.clear()
+                    gen_f.randomizer(global_variables.num_arr[0],global_variables.tab[0])
+                    gen_f.randomizer(global_variables.num_arr[1],global_variables.tab[1])
+                    gen_f.randomizer(global_variables.num_arr[2],global_variables. tab[2])
+
+                    sp_f.game()
 
             if str(key) == "'v'":
-                sp_f.end_game('Win')
-                global_variables.ganhou = True
+                if global_variables.has_pressed == True:
+                    sp_f.end_game('Win')
+                    global_variables.ganhou = True
 
             if str(key) == 'Key.esc':
+                global_variables.pressed_esc = True
+                global_variables.game_enabled = False
+                global_variables.menu_enabled = False
+                global_variables.difficulty_enabled = False
+                global_variables.tutorial_enabled = False
+                global_variables.countdown_enabled = False
+                global_variables.name_loop_enabled = False
+                time.sleep(0.2)
                 console.clear()
                 quit()
 
