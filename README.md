@@ -15,3 +15,5 @@
  **R** - *Randomizar o tabuleiro*
 
  **F** - *Voltar para o menu*
+
+**Setas** - *Navegação*
