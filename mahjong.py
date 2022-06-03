@@ -1,3 +1,4 @@
+from ast import expr_context
 import math as math
 from types import NoneType
 from colorama import Fore
@@ -186,8 +187,8 @@ def main():
 
                 #chama a função responsável pela checagem se o jogo acabou
                 if return_game_ended(global_variables.tab[0]):
-                    sp_f.end_game('Win')
                     global_variables.ganhou = True
+                    sp_f.end_game('Win')
                 
                 #após retirar a carta, o cursor deve mudar para uma carta ou a direita dela (try) ou, se não existir, a esquerda (except)
                 try:
@@ -195,12 +196,24 @@ def main():
                     while global_variables.tab[global_variables.z -1][global_variables.x+add] == 0:
                         add += 1
                     global_variables.x += add
+                    if global_variables.tab[2][global_variables.x] != 0:
+                        global_variables.z = 3
+                    elif global_variables.tab[1][global_variables.x] != 0:
+                        global_variables.z = 2
+                    else:
+                        global_variables.z = 1
                     
                 except:
                     add = 1
                     while global_variables.tab[global_variables.z -1][global_variables.x-add] == 0:
                         add -= 1
                     global_variables.x -= add
+                    if global_variables.tab[2][global_variables.x] != 0:
+                        global_variables.z = 3
+                    elif global_variables.tab[1][global_variables.x] != 0:
+                        global_variables.z = 2
+                    else:
+                        global_variables.z = 1
                 
 
             else:
@@ -404,7 +417,7 @@ def main():
                 gen_f.randomizer(global_variables.num_arr[1],global_variables.tab[1])
                 gen_f.randomizer(global_variables.num_arr[2],global_variables.tab[2])
 
-            #gera todas as camadas:   
+            # gera todas as camadas:   
             counter_blockgen = 0
             pos_x = 0
             pos_y = 1
@@ -456,13 +469,15 @@ def main():
             print(Fore.WHITE)
             gotoxy(80-3,35)
             print("Pressione R para randomizar")
+            gotoxy(80-3,36)
+            print(global_variables.num_arr)
 
             def countdown():
                 #cronometro que fica no canto da tela
                 #multiplica pela dificuldade, maior dificuldade = menor tempo
                 contador = global_variables.difficulty*240
                 if global_variables.countdown_enabled == True:
-                    for _ in range(contador):
+                    for _ in range(contador*10):
                         print(Fore.WHITE)
                         gotoxy(160-3,1)
                         print("TEMPO: "+str(contador))
@@ -628,9 +643,13 @@ def main():
                             pass
                             
                     if global_variables.x < 59:
-                        add = 1
-                        while global_variables.tab[global_variables.z-1][global_variables.x+add] == 0:
-                            add+=1
+                        
+                        try:
+                            add = 1
+                            while global_variables.tab[global_variables.z-1][global_variables.x + add] == 0:
+                                add+=1
+                        except:
+                            add = 0
                         global_variables.x += add
                         sp_f.game()
 
@@ -650,10 +669,14 @@ def main():
                             pass
 
                     if global_variables.x > 0:
-                        add = 1
-                        while global_variables.tab[global_variables.z-1][global_variables.x-add] == 0:
-                            add+=1
-                        global_variables.x -= add
+                        
+                        try:
+                            add = -1
+                            while global_variables.tab[global_variables.z-1][global_variables.x - add] == 0:
+                                add-=1
+                        except:
+                            add = 0
+                        global_variables.x += add
                         sp_f.game()
 
             if str(key) == 'Key.enter':
