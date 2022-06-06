@@ -11,7 +11,7 @@ from random import randrange
 
 def main():
     class global_variables:
-        #classe de variáveis globais utilizadas em todo o jogo
+        #classe de variáveis globais utilizadas em todo o jogo,
         x = 0
         y = 1
         z = 1
