@@ -1,4 +1,3 @@
-from ast import expr_context
 import math as math
 from types import NoneType
 from colorama import Fore
@@ -62,6 +61,7 @@ def main():
         sym_lib = ['♥','♦','♣','§','☺','♠','•','♂','♀','♪','♫','►','◄','▲','▼','ø','¶','!','@','#','$','%','&','*']
         num_arr = []
         pressed_esc = False
+        borda_compare_array = None
 
 
     class gen_f:
@@ -150,15 +150,21 @@ def main():
             print(chr(9492) + chr(9472)*3 + chr(9496))
 
         def compare_block(array_selected,array_cursor,tab_selected,tab_cursor,borda_E_S,borda_D_S,borda_E_C,borda_D_C):
+
+
             #responsável por fazer a comparação entre dois blocos e excluí-los se forem idênticos
+            #se o bloco selecionado estiver em uma das bordas e o bloco do cursor estiver em uma das bordas também, exclui o bloco.
+
             x_cursor = global_variables.x
             x_selected = global_variables.selected_x
+            
             def comparar_x_com_valor_borda(array,x,soma):
                 #dado um x, a função retorna True ou False dependendo se esse x estiver na borda ou não
                 contador_comparar_x_com_valor_borda = 0
                 for valor_borda in array:
                     if x == valor_borda:
-                        array[contador_comparar_x_com_valor_borda] += soma
+                        if array_selected[x_selected] == array_cursor[x_cursor] and x_cursor!=x_selected:
+                            array[contador_comparar_x_com_valor_borda] += soma
                         return True 
                     contador_comparar_x_com_valor_borda += 1      
                 return False
@@ -183,7 +189,7 @@ def main():
                     for elemento in tab:
                         if elemento == 1:
                             return False
-                        return True
+                    return True
 
                 #chama a função responsável pela checagem se o jogo acabou
                 if return_game_ended(global_variables.tab[0]):
@@ -191,23 +197,19 @@ def main():
                     sp_f.end_game('Win')
                 
                 #após retirar a carta, o cursor deve mudar para uma carta ou a direita dela (try) ou, se não existir, a esquerda (except)
-                try:
-                    add = 1
-                    while global_variables.tab[global_variables.z -1][global_variables.x+add] == 0:
-                        add += 1
-                    global_variables.x += add
-                    if global_variables.tab[2][global_variables.x] != 0:
-                        global_variables.z = 3
-                    elif global_variables.tab[1][global_variables.x] != 0:
-                        global_variables.z = 2
-                    else:
-                        global_variables.z = 1
-                    
-                except:
-                    add = 1
-                    while global_variables.tab[global_variables.z -1][global_variables.x-add] == 0:
-                        add -= 1
-                    global_variables.x -= add
+
+                if global_variables.x:
+                    try:
+                        add = 1
+                        while global_variables.tab[0][global_variables.x+add] == 0:
+                            add += 1
+                        global_variables.x += add
+                    except:
+                        add = 1
+                        while global_variables.tab[0][global_variables.x-add] == 0:
+                            add += 1
+                        global_variables.x -= add
+
                     if global_variables.tab[2][global_variables.x] != 0:
                         global_variables.z = 3
                     elif global_variables.tab[1][global_variables.x] != 0:
@@ -319,6 +321,7 @@ def main():
             global_variables.tutorial_enabled = False
             global_variables.has_pressed = True
             global_variables.countdown_enabled = False
+            global_variables.ganhou = False
 
 
             console.clear()
@@ -392,111 +395,135 @@ def main():
 
 
         def game():
-            #função do jogo principal, dá clear e printa todas as cartas do jogo toda vez que é chamada
-            global_variables.game_enabled = True
+            if global_variables.ganhou == False:
+                #função do jogo principal, dá clear e printa todas as cartas do jogo toda vez que é chamada
+                global_variables.game_enabled = True
+    
+                #DEBUG
+                global_variables.menu_enabled = False
+                global_variables.difficulty_enabled = False
+                global_variables.tutorial_enabled = False
+                
+    
+    
+                console.clear()
+    
+                init(160)
+                reset(1,2,49, 160)
+    
+                if global_variables.game_started == False:
+                    #gerar todas as camadas do tabuleiro randomizado
+                    global_variables.game_started = True
+                    gen_f.gerar_array_simbolo_e_numero(global_variables.num_arr,global_variables.tab[0])
+                    gen_f.gerar_array_simbolo_e_numero(global_variables.num_arr,global_variables.tab[1])
+                    gen_f.gerar_array_simbolo_e_numero(global_variables.num_arr,global_variables.tab[2])
+                    gen_f.randomizer(global_variables.num_arr[0],global_variables.tab[0])
+                    gen_f.randomizer(global_variables.num_arr[1],global_variables.tab[1])
+                    gen_f.randomizer(global_variables.num_arr[2],global_variables.tab[2])
+    
+                # gera todas as camadas:   
 
-            #DEBUG
-            global_variables.menu_enabled = False
-            global_variables.difficulty_enabled = False
-            global_variables.tutorial_enabled = False
-            
 
-
-            console.clear()
-
-            init(160)
-            reset(1,2,49, 160)
-
-            if global_variables.game_started == False:
-                #gerar todas as camadas do tabuleiro randomizado
-                global_variables.game_started = True
-                gen_f.gerar_array_simbolo_e_numero(global_variables.num_arr,global_variables.tab[0])
-                gen_f.gerar_array_simbolo_e_numero(global_variables.num_arr,global_variables.tab[1])
-                gen_f.gerar_array_simbolo_e_numero(global_variables.num_arr,global_variables.tab[2])
-                gen_f.randomizer(global_variables.num_arr[0],global_variables.tab[0])
-                gen_f.randomizer(global_variables.num_arr[1],global_variables.tab[1])
-                gen_f.randomizer(global_variables.num_arr[2],global_variables.tab[2])
-
-            # gera todas as camadas:   
-            counter_blockgen = 0
-            pos_x = 0
-            pos_y = 1
-            for block in global_variables.tab[0]:
-                if block != 0:
-                    pixel_pos_x = (-25 + (160/2) + pos_x * 5)
-                    pixel_pos_y = pos_y * 5
-                    #o [1:2] pega o símbolo pois a array concatenada tem cada elemento assim '1♠', mesmo princípio com [0:1] (nesse caso, pega o número)
-                    gen_f.print_block(pixel_pos_x,pixel_pos_y,global_variables.num_arr[0][counter_blockgen][1:2],global_variables.num_arr[0][counter_blockgen][0:1],gen_f.find_col(pos_x,pos_y,1))
-
-                pos_x += 1
-                if pos_x >= 10:
+                i = 0
+                for tab in global_variables.tab:
                     pos_x = 0
-                    pos_y += 1
-                counter_blockgen += 1
+                    pos_y = 1
+                    counter_blockgen = 0
+                    for block in tab:
+                        if block != 0:
+                            pixel_pos_x = (-25 + (160/2) + pos_x * 5) - i
+                            pixel_pos_y = pos_y * 5 - i
+                            #o [1:2] pega o símbolo pois a array concatenada tem cada elemento assim '1♠', mesmo princípio com [0:1] (nesse caso, pega o número)
+                            gen_f.print_block(pixel_pos_x,pixel_pos_y,global_variables.num_arr[i][counter_blockgen][1:2],global_variables.num_arr[0][counter_blockgen][0:1],gen_f.find_col(pos_x,pos_y,i+1))
+                        pos_x += 1
+                        if pos_x >= 10:
+                            pos_x = 0
+                            pos_y += 1
+                        counter_blockgen += 1
+                    i += 1
 
-            counter_blockgen_2 = 0
-            pos_x_2 = 0
-            pos_y_2 = 1
 
-            for block in global_variables.tab[1]:
-                if block != 0:
-                    pixel_pos_x = (-25 + (160/2) + pos_x_2 * 5) -1
-                    pixel_pos_y = pos_y_2 * 5 -1
-                    gen_f.print_block(pixel_pos_x,pixel_pos_y,global_variables.num_arr[1][counter_blockgen_2][1:2],global_variables.num_arr[1][counter_blockgen_2][0:1],gen_f.find_col(pos_x_2,pos_y_2,2))
 
-                pos_x_2 += 1
-                if pos_x_2 >= 10:
-                    pos_x_2 = 0
-                    pos_y_2 += 1
-                counter_blockgen_2 += 1
+                #for block in global_variables.tab[0]:
+                #    if block != 0:
+                #        pixel_pos_x = (-25 + (160/2) + pos_x * 5)
+                #        pixel_pos_y = pos_y * 5
+                #        #o [1:2] pega o símbolo pois a array concatenada tem cada elemento assim '1♠', mesmo princípio com [0:1] (nesse caso, pega o número)
+                #        gen_f.print_block(pixel_pos_x,pixel_pos_y,global_variables.num_arr[0][counter_blockgen][1:2],global_variables.num_arr[0][counter_blockgen][0:1],gen_f.find_col(pos_x,pos_y,1))
+    #
+                #    pos_x += 1
+                #    if pos_x >= 10:
+                #        pos_x = 0
+                #        pos_y += 1
+                #    counter_blockgen += 1
+    #
+                #counter_blockgen_2 = 0
+                #pos_x_2 = 0
+                #pos_y_2 = 1
+    #
+                #for block in global_variables.tab[1]:
+                #    if block != 0:
+                #        pixel_pos_x = (-25 + (160/2) + pos_x_2 * 5) -1
+                #        pixel_pos_y = pos_y_2 * 5 -1
+                #        gen_f.print_block(pixel_pos_x,pixel_pos_y,global_variables.num_arr[1][counter_blockgen_2][1:2],global_variables.num_arr[1][counter_blockgen_2][0:1],gen_f.find_col(pos_x_2,pos_y_2,2))
+    #
+                #    pos_x_2 += 1
+                #    if pos_x_2 >= 10:
+                #        pos_x_2 = 0
+                #        pos_y_2 += 1
+                #    counter_blockgen_2 += 1
+    #
+                #counter_blockgen_3 = 0
+                #pos_x_3 = 0
+                #pos_y_3 = 1
+                #
+                #for block in global_variables.tab[2]:
+                #    if block != 0:
+                #        pixel_pos_x = (-25 + (160/2) + pos_x_3 * 5) -2
+                #        pixel_pos_y = pos_y_3 * 5 -2
+                #        gen_f.print_block(pixel_pos_x,pixel_pos_y,global_variables.num_arr[2][counter_blockgen_3][1:2],global_variables.num_arr[2][counter_blockgen_3][0:1],gen_f.find_col(pos_x_3,pos_y_3,3))
+    #
+                #    pos_x_3 += 1
+                #    if pos_x_3 >= 10:
+                #        pos_x_3 = 0
+                #        pos_y_3 += 1
+                #    counter_blockgen_3 += 1
+    
+                print(Fore.WHITE)
+                gotoxy(80-3,35)
+                print("Pressione R para randomizar")
+                gotoxy(80-3,36)
+                print(global_variables.borda_E)
+                gotoxy(80-3,37)
+                print(global_variables.borda_D)
 
-            counter_blockgen_3 = 0
-            pos_x_3 = 0
-            pos_y_3 = 1
-            
-            for block in global_variables.tab[2]:
-                if block != 0:
-                    pixel_pos_x = (-25 + (160/2) + pos_x_3 * 5) -2
-                    pixel_pos_y = pos_y_3 * 5 -2
-                    gen_f.print_block(pixel_pos_x,pixel_pos_y,global_variables.num_arr[2][counter_blockgen_3][1:2],global_variables.num_arr[2][counter_blockgen_3][0:1],gen_f.find_col(pos_x_3,pos_y_3,3))
-
-                pos_x_3 += 1
-                if pos_x_3 >= 10:
-                    pos_x_3 = 0
-                    pos_y_3 += 1
-                counter_blockgen_3 += 1
-
-            print(Fore.WHITE)
-            gotoxy(80-3,35)
-            print("Pressione R para randomizar")
-            gotoxy(80-3,36)
-            print(global_variables.num_arr)
-
-            def countdown():
-                #cronometro que fica no canto da tela
-                #multiplica pela dificuldade, maior dificuldade = menor tempo
-                contador = global_variables.difficulty*240
-                if global_variables.countdown_enabled == True:
-                    for _ in range(contador*10):
-                        print(Fore.WHITE)
-                        gotoxy(160-3,1)
-                        print("TEMPO: "+str(contador))
-                        contador = round(contador - 0.1,1)
-                        global_variables.pontuacao = contador * 100
-                        time.sleep(0.1)
-                        if global_variables.countdown_enabled == False:
-                            break
-                    if global_variables.ganhou == False:
-                        if global_variables.menu_enabled == False:
-                            if global_variables.pressed_esc == False:
-                                #quando o tempo acabar, o jogador perde
-                                sp_f.end_game('Lose')
-
-            #cria uma nova thread para o cronometro somente uma vez
-            if global_variables.countdown_enabled == False:
-                global_variables.countdown_enabled = True
-                countdown_thread = threading.Thread(target=countdown)
-                countdown_thread.start()
+                contador_countdown = global_variables.difficulty*240
+                def countdown():
+                    #cronometro que fica no canto da tela
+                    #multiplica pela dificuldade, maior dificuldade = menor tempo
+                    contador = contador_countdown
+                    if global_variables.countdown_enabled == True:
+                        for _ in range(contador*10):
+                            print(Fore.WHITE)
+                            gotoxy(160-3,1)
+                            print("TEMPO: "+str(contador))
+                            contador = round(contador - 0.1,1)
+                            global_variables.pontuacao = contador * 100
+                            time.sleep(0.1)
+                            if global_variables.countdown_enabled == False:
+                                break
+                        if global_variables.ganhou == False:
+                            if global_variables.menu_enabled == False:
+                                if global_variables.pressed_esc == False:
+                                    #quando o tempo acabar, o jogador perde
+                                    global_variables.ganhou = True
+                                    sp_f.end_game('Lose')
+    
+                #cria uma nova thread para o cronometro somente uma vez
+                if global_variables.countdown_enabled == False:
+                    global_variables.countdown_enabled = True
+                    countdown_thread = threading.Thread(target=countdown)
+                    countdown_thread.start()
         
         def end_game(outcome):
             #tela de fim de jogo, depende se o jogador ganhou ou perdeu
@@ -570,30 +597,23 @@ def main():
                         sp_f.menu()
                     elif global_variables.difficulty_enabled:
                         sp_f.menu_screens.difficulty()
-                    elif global_variables.game_enabled:
+                    elif global_variables.game_enabled and global_variables.x > 9:
                         try:
-                            if global_variables.tab[2][global_variables.x-10] != 0:
-                                global_variables.z = 3
-                            else:
-                                if global_variables.tab[1][global_variables.x-10] != 0:
-                                    global_variables.z = 2
-                                else:
-                                    if global_variables.tab[0][global_variables.x-10] != 0:
-                                        global_variables.z = 1
-                        except:
-                            pass
-                        if global_variables.x > 9:
-
                             add = 10
-
-                            while global_variables.tab[global_variables.z-1][global_variables.x - add] == 0:
-                                if global_variables.x - add > 9:
-                                    add += 10
-                                else:
-                                    add = 0
-
+                            while global_variables.tab[0][global_variables.x-add] == 0:
+                                add += 10
                             global_variables.x -= add
-                            sp_f.game()
+                        except:
+                            add = 0
+
+                        if global_variables.tab[2][global_variables.x] != 0:
+                            global_variables.z = 3
+                        elif global_variables.tab[1][global_variables.x] != 0:
+                            global_variables.z = 2
+                        else:
+                            global_variables.z = 1
+                        
+                        sp_f.game()
 
             if str(key) == 'Key.down':
                 if global_variables.has_pressed == True:
@@ -603,80 +623,62 @@ def main():
                         sp_f.menu()
                     elif global_variables.difficulty_enabled:
                         sp_f.menu_screens.difficulty()
-                    elif global_variables.game_enabled:
-
+                    elif global_variables.game_enabled and global_variables.x < 50:
                         try:
-                            if global_variables.tab[2][global_variables.x+10] != 0:
-                                global_variables.z = 3
-                            else:
-                                if global_variables.tab[1][global_variables.x+10] != 0:
-                                    global_variables.z = 2
-                                else:
-                                    if global_variables.tab[0][global_variables.x+10] != 0:
-                                        global_variables.z = 1
-                        except:
-                            pass
-                        if global_variables.x < 50:
-
-                            try:
-                                add = 10
-                                while global_variables.tab[global_variables.z-1][global_variables.x + add] == 0:
-                                    add += 10
-                            except:
-                                add = 0
+                            add = 10
+                            while global_variables.tab[0][global_variables.x+add] == 0:
+                                add += 10
                             global_variables.x += add
-                            sp_f.game()
+                        except:
+                            add = 0
+                        if global_variables.tab[2][global_variables.x] != 0:
+                            global_variables.z = 3
+                        elif global_variables.tab[1][global_variables.x] != 0:
+                            global_variables.z = 2
+                        else:
+                            global_variables.z = 1
+                        
+                        sp_f.game()
             
             if str(key) == 'Key.right':
                 if global_variables.has_pressed == True:
-                    if global_variables.game_enabled:
-                        try:
-                            if global_variables.tab[2][global_variables.x+1] != 0:
-                                global_variables.z = 3
-                            else:
-                                if global_variables.tab[1][global_variables.x+1] != 0:
-                                    global_variables.z = 2
-                                else:
-                                    if global_variables.tab[0][global_variables.x+1] != 0:
-                                        global_variables.z = 1
-                        except:
-                            pass
-                            
-                    if global_variables.x < 59:
-                        
+
+                    #se o jogo estiver habilitado:
+                    if global_variables.game_enabled and global_variables.x < 59:
                         try:
                             add = 1
-                            while global_variables.tab[global_variables.z-1][global_variables.x + add] == 0:
-                                add+=1
+                            while global_variables.tab[0][global_variables.x+add] == 0:
+                                add += 1
+                            global_variables.x += add
                         except:
                             add = 0
-                        global_variables.x += add
+                        if global_variables.tab[2][global_variables.x] != 0:
+                            global_variables.z = 3
+                        elif global_variables.tab[1][global_variables.x] != 0:
+                            global_variables.z = 2
+                        else:
+                            global_variables.z = 1
+
                         sp_f.game()
 
             if str(key) == 'Key.left':
                 if global_variables.has_pressed == True:
-                    if global_variables.game_enabled:
-                        try:
-                            if global_variables.tab[2][global_variables.x-1] != 0:
+                    if global_variables.game_enabled and global_variables.x > 0:
+                        if global_variables.x:
+                            try:
+                                add = 1
+                                while global_variables.tab[0][global_variables.x-add] == 0:
+                                    add += 1
+                                global_variables.x -= add
+                            except:
+                                add = 0
+                                
+                            if global_variables.tab[2][global_variables.x] != 0:
                                 global_variables.z = 3
+                            elif global_variables.tab[1][global_variables.x] != 0:
+                                global_variables.z = 2
                             else:
-                                if global_variables.tab[1][global_variables.x-1] != 0:
-                                    global_variables.z = 2
-                                else:
-                                    if global_variables.tab[0][global_variables.x-1] != 0:
-                                        global_variables.z = 1
-                        except:
-                            pass
-
-                    if global_variables.x > 0:
-                        
-                        try:
-                            add = -1
-                            while global_variables.tab[global_variables.z-1][global_variables.x - add] == 0:
-                                add-=1
-                        except:
-                            add = 0
-                        global_variables.x += add
+                                global_variables.z = 1
                         sp_f.game()
 
             if str(key) == 'Key.enter':
