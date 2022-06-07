@@ -11,7 +11,7 @@ from random import randrange
 
 def main():
     class global_variables:
-        #classe de variáveis globais utilizadas em todo o jogo,
+        #classe de variáveis globais utilizadas em todo o jogo
         x = 0
         y = 1
         z = 1
@@ -434,7 +434,7 @@ def main():
                             pixel_pos_x = (-25 + (160/2) + pos_x * 5) - i
                             pixel_pos_y = pos_y * 5 - i
                             #o [1:2] pega o símbolo pois a array concatenada tem cada elemento assim '1♠', mesmo princípio com [0:1] (nesse caso, pega o número)
-                            gen_f.print_block(pixel_pos_x,pixel_pos_y,global_variables.num_arr[i][counter_blockgen][1:2],global_variables.num_arr[0][counter_blockgen][0:1],gen_f.find_col(pos_x,pos_y,i+1))
+                            gen_f.print_block(pixel_pos_x,pixel_pos_y,global_variables.num_arr[i][counter_blockgen][1:2],global_variables.num_arr[i][counter_blockgen][0:1],gen_f.find_col(pos_x,pos_y,i+1))
                         pos_x += 1
                         if pos_x >= 10:
                             pos_x = 0
