@@ -1,3 +1,7 @@
+#GRUPO: Leonardo Oliveira de Albuquerque Fell, Leticia Fontenelle Chaves, Vitor Roberto Gomes Queiroz, Lucas Ribeiro Costa
+
+
+
 import math as math
 from types import NoneType
 from colorama import Fore
@@ -361,38 +365,32 @@ def main():
                 global_variables.difficulty_enabled = False
 
                 console.clear()
-                print("""
-                Objetivo do jogo:
-                 
-                -Combinar todas as peças todas as peças do tabuleiro antes que o tempo acabe.
-
-                Peças Abertas:
-
-                -Diz-se que uma peça está aberta ou exposta se puder ser movida para a esquerda ou para a direita sem perturbar outras peças.
-
-                -Duas peças abertas idênticas podem ser combinadas para liberar um espaço no tabuleiro.
-
-                Como jogar:
-
-                -O jogador deve combinar todas as peças abertas do tabuleiro antes que o tempo acabe.
-
-                -Use as setas do teclado para mover o cursor.
-
-                -Pressione Enter para selecionar duas peças e combiná-las.
-
-                -Ficou preso? pressione R para randomizar as peças do tabuleiro atual.
-
-                -Pressione F para voltar para o menu.
-
-                -Pressione Esc a qualquer momento para sair do jogo.
-
-
-
-                PRESSIONE F PARA VOLTAR
-
-                BOM JOGO !!!
-
-                """)
+                print(' ' * 71 + 'Objetivo do Jogo:')
+                print('\n')
+                print(' ' * 41 + '-Combinar todas as peças todas as peças do tabuleiro antes que o tempo acabe.')
+                print('\n')
+                print(' ' * 73 + 'Peças Abertas:')
+                print('\n')
+                print(' ' * 17 + '-Diz-se que uma peça está aberta ou exposta se puder ser movida para a esquerda ou para a direita sem perturbar outras peças.')
+                print('\n')
+                print(' ' * 36 + '-Duas peças abertas idênticas podem ser combinadas para liberar um espaço no tabuleiro.')
+                print('\n')
+                print(' ' * 74 + 'Como jogar:')
+                print('\n')
+                print(' ' * 34 + '-O jogador deve combinar todas as peças abertas do tabuleiro antes que o tempo acabe.')
+                print(' ' * 57 + '-Use as setas do teclado para mover o cursor.')
+                print('\n')
+                print(' ' * 51 + '-Pressione Enter para selecionar duas peças e combiná-las.')
+                print('\n')
+                print(' ' * 45 + '-Ficou preso? pressione R para randomizar as peças do tabuleiro atual.')
+                print('\n')
+                print(' ' * 61 + '-Pressione F para voltar para o menu.')
+                print('\n')
+                print(' ' * 54 + '-Pressione Esc a qualquer momento para sair do jogo.')
+                print('\n'*3)
+                print(' ' * 68 + 'PRESSIONE F PARA VOLTAR')
+                print('\n')
+                print(' ' * 74 + 'BOM JOGO !!!')
 
 
         def game():
@@ -418,9 +416,9 @@ def main():
                     gen_f.gerar_array_simbolo_e_numero(global_variables.num_arr,global_variables.tab[0])
                     gen_f.gerar_array_simbolo_e_numero(global_variables.num_arr,global_variables.tab[1])
                     gen_f.gerar_array_simbolo_e_numero(global_variables.num_arr,global_variables.tab[2])
-                    #gen_f.randomizer(global_variables.num_arr[0],global_variables.tab[0])
-                    #gen_f.randomizer(global_variables.num_arr[1],global_variables.tab[1])
-                    #gen_f.randomizer(global_variables.num_arr[2],global_variables.tab[2])
+                    gen_f.randomizer(global_variables.num_arr[0],global_variables.tab[0])
+                    gen_f.randomizer(global_variables.num_arr[1],global_variables.tab[1])
+                    gen_f.randomizer(global_variables.num_arr[2],global_variables.tab[2])
     
                 # gera todas as camadas:   
 
@@ -445,10 +443,10 @@ def main():
                 print(Fore.WHITE)
                 gotoxy(80-3,35)
                 print("Pressione R para randomizar")
-                gotoxy(80-3,36)
-                print(global_variables.borda_E)
-                gotoxy(80-3,37)
-                print(global_variables.borda_D)
+                #gotoxy(80-3,36)
+                #print(global_variables.borda_E)
+                #gotoxy(80-3,37)
+                #print(global_variables.borda_D)
 
                 def countdown():
                     #cronometro que fica no canto da tela
