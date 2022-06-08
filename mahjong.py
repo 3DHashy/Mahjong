@@ -29,10 +29,10 @@ def main():
         1,1,1,1,1,1,1,1,1,1
         ],[
         0,0,0,0,0,0,0,0,0,0,
-        0,1,1,1,1,1,1,1,1,0,
-        0,1,1,1,1,1,1,1,1,0,
-        0,1,1,1,1,1,1,1,1,0,
-        0,1,1,1,1,1,1,1,1,0,
+        1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,
         0,0,0,0,0,0,0,0,0,0
         ],[
         0,0,0,0,0,0,0,0,0,0,
@@ -43,8 +43,8 @@ def main():
         0,0,0,0,0,0,0,0,0,0
         ]]
 
-        borda_E = [[0,10,20,30,40,50],[11,21,31,41],[22,32]]
-        borda_D = [[9,19,29,39,49,59],[18,28,38,48],[27,37]]
+        borda_E = [[0,10,20,30,40,50],[10,20,30,40],[22,32]]
+        borda_D = [[9,19,29,39,49,59],[19,29,39,49],[27,37]]
 
 
         difficulty = 4
@@ -199,24 +199,24 @@ def main():
                     
                 
                 #após retirar a carta, o cursor deve mudar para uma carta ou a direita dela (try) ou, se não existir, a esquerda (except)
+                if global_variables.ganhou == False:
+                    try:
+                        add = 1
+                        while global_variables.tab[0][global_variables.x+add] == 0:
+                            add += 1
+                        global_variables.x += add
+                    except:
+                        add = 1
+                        while global_variables.tab[0][global_variables.x-add] == 0:
+                            add += 1
+                        global_variables.x -= add
 
-                try:
-                    add = 1
-                    while global_variables.tab[0][global_variables.x+add] == 0:
-                        add += 1
-                    global_variables.x += add
-                except:
-                    add = 1
-                    while global_variables.tab[0][global_variables.x-add] == 0:
-                        add += 1
-                    global_variables.x -= add
-
-                if global_variables.tab[2][global_variables.x] != 0:
-                    global_variables.z = 3
-                elif global_variables.tab[1][global_variables.x] != 0:
-                    global_variables.z = 2
-                else:
-                        global_variables.z = 1
+                    if global_variables.tab[2][global_variables.x] != 0:
+                        global_variables.z = 3
+                    elif global_variables.tab[1][global_variables.x] != 0:
+                        global_variables.z = 2
+                    else:
+                            global_variables.z = 1
                 
 
             else:
@@ -418,9 +418,9 @@ def main():
                     gen_f.gerar_array_simbolo_e_numero(global_variables.num_arr,global_variables.tab[0])
                     gen_f.gerar_array_simbolo_e_numero(global_variables.num_arr,global_variables.tab[1])
                     gen_f.gerar_array_simbolo_e_numero(global_variables.num_arr,global_variables.tab[2])
-                    gen_f.randomizer(global_variables.num_arr[0],global_variables.tab[0])
-                    gen_f.randomizer(global_variables.num_arr[1],global_variables.tab[1])
-                    gen_f.randomizer(global_variables.num_arr[2],global_variables.tab[2])
+                    #gen_f.randomizer(global_variables.num_arr[0],global_variables.tab[0])
+                    #gen_f.randomizer(global_variables.num_arr[1],global_variables.tab[1])
+                    #gen_f.randomizer(global_variables.num_arr[2],global_variables.tab[2])
     
                 # gera todas as camadas:   
 
